@@ -32,7 +32,7 @@ static void
 nfct_cmd_timeout_usage(char *argv[])
 {
 	fprintf(stderr, "nfct v%s: Missing command\n"
-			"%s <list|add|delete|get|default-set|default-get|flush> timeout "
+			"%s <list|add|delete|get|flush|set> timeout "
 			"[<parameters>, ...]\n", VERSION, argv[0]);
 }
 

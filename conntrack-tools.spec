@@ -1,6 +1,6 @@
 Name:           conntrack-tools
-Version:        1.4.4
-Release:        5%{?dist}.2
+Version:        1.4.3
+Release:        1%{?dist}
 Summary:        Manipulate netfilter connection tracking table and run High Availability
 Group:          System Environment/Base
 License:        GPLv2
@@ -8,24 +8,16 @@ URL:            http://netfilter.org
 Source0:        http://netfilter.org/projects/%{name}/files/%{name}-%{version}.tar.bz2
 Source1:        conntrackd.service
 Source2:        conntrackd.conf
-BuildRequires:  libnfnetlink-devel >= 1.0.1, libnetfilter_conntrack-devel >= 1.0.6
+BuildRequires:  libnfnetlink-devel >= 1.0.1, libnetfilter_conntrack-devel >= 1.0.4
 BuildRequires:  libnetfilter_cttimeout-devel >= 1.0.0, libnetfilter_cthelper-devel >= 1.0.0
 BuildRequires:  libmnl-devel >= 1.0.3, libnetfilter_queue-devel >= 1.0.2
 BuildRequires:  pkgconfig bison flex
-Requires:  libnetfilter_conntrack >= 1.0.6
 Provides:       conntrack = 1.0-1
 Obsoletes:      conntrack < 1.0-1
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 BuildRequires: systemd
-
-Patch1:		0001-conntrack-Support-IPv6-NAT.patch
-Patch2:		0002-conntrackd-helpers-dhcpv6-Fix-potential-array-overru.patch
-Patch3:		0003-nfct-Drop-dead-code-in-nfct_timeout_parse_params.patch
-Patch4:		0004-src-Fix-for-implicit-fallthrough-warnings.patch
-Patch5:		0005-conntrack-Fix-CIDR-to-mask-conversion-on-Big-Endian.patch
-Patch6:		0006-nfct-helper-Fix-NFCTH_ATTR_PROTO_L4NUM-size.patch
 
 %description
 With conntrack-tools you can setup a High Availability cluster and
@@ -47,7 +39,7 @@ In addition, you can also monitor connection tracking events, e.g.
 show an event message (one line) per newly established connection.
 
 %prep
-%autosetup -p1
+%setup -q
 
 %build
 # do not use --enable-cthelper --enable-cttimeout, it causes disabling of these features
@@ -73,7 +65,6 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %{_sbindir}/conntrackd
 %{_sbindir}/nfct
 %{_mandir}/man8/*
-%{_mandir}/man5/*
 %dir %{_libdir}/conntrack-tools
 %{_libdir}/conntrack-tools/*
 
@@ -87,30 +78,6 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %systemd_postun conntrackd.service 
 
 %changelog
-* Tue Sep 10 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5.2
-- nfct: helper: Fix NFCTH_ATTR_PROTO_L4NUM size
-
-* Fri Sep 06 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5.1
-- conntrack: Fix CIDR to mask conversion on Big Endian
-
-* Wed Mar 27 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5
-- Add git commit info to IPv6 NAT support patch
-- Backport: conntrackd: helpers: dhcpv6: Fix potential array overrun
-- Backport: nfct: Drop dead code in nfct_timeout_parse_params()
-- Backport: src: Fix for implicit-fallthrough warnings
-
-* Fri Aug 24 2018 Paul Wouters <pwouters@redhat.com> - 1.4.4-4
-- Resolves: rhbz#1578059 Greatest NVR version of conntrack-tools for ppc64le and x86_64 are different
-
-* Mon Apr 03 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-3
-- Resolves: rhbz#1425552 (explicitely Require: libnetfilter_conntrack >= 1.0.6 as it is same .so version)
-
-* Thu Mar 16 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-2
-- Resolves: rhbz#1425552 (conntrack cmd was missing IPv6 support as well)
-
-* Fri Mar 03 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-1
-- Resolves: rhbz#1425552 conntrack does not support Ipv6 NAT
-
 * Fri Aug 12 2016 Paul Wouters <pwouters@redhat.com> - 1.4.3-1
 - Resolves: rhbz#1351701 conntrackd -d throws "ERROR: Helper support is disabled"
 
