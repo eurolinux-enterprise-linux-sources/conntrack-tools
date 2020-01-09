@@ -1,6 +1,6 @@
 Name:           conntrack-tools
 Version:        1.4.4
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Manipulate netfilter connection tracking table and run High Availability
 Group:          System Environment/Base
 License:        GPLv2
@@ -20,7 +20,10 @@ Requires(preun): systemd
 Requires(postun): systemd
 BuildRequires: systemd
 
-Patch1: conntrack-tools-1.4.4-conntrack.patch
+Patch1:		0001-conntrack-Support-IPv6-NAT.patch
+Patch2:		0002-conntrackd-helpers-dhcpv6-Fix-potential-array-overru.patch
+Patch3:		0003-nfct-Drop-dead-code-in-nfct_timeout_parse_params.patch
+Patch4:		0004-src-Fix-for-implicit-fallthrough-warnings.patch
 
 %description
 With conntrack-tools you can setup a High Availability cluster and
@@ -42,8 +45,7 @@ In addition, you can also monitor connection tracking events, e.g.
 show an event message (one line) per newly established connection.
 
 %prep
-%setup -q
-%patch1 -p1
+%autosetup -p1
 
 %build
 # do not use --enable-cthelper --enable-cttimeout, it causes disabling of these features
@@ -83,6 +85,12 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %systemd_postun conntrackd.service 
 
 %changelog
+* Wed Mar 27 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5
+- Add git commit info to IPv6 NAT support patch
+- Backport: conntrackd: helpers: dhcpv6: Fix potential array overrun
+- Backport: nfct: Drop dead code in nfct_timeout_parse_params()
+- Backport: src: Fix for implicit-fallthrough warnings
+
 * Fri Aug 24 2018 Paul Wouters <pwouters@redhat.com> - 1.4.4-4
 - Resolves: rhbz#1578059 Greatest NVR version of conntrack-tools for ppc64le and x86_64 are different
 

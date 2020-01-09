@@ -1,0 +1,78 @@
+From a194ecd1258b58a5fd42970bdb8f1bf4eead3b13 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Wed, 13 Feb 2019 00:13:44 +0100
+Subject: [PATCH] src: Fix for implicit-fallthrough warnings
+
+Mark fall through cases as such. Note that correctness of those fall
+throughs have not been verified.
+
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+(cherry picked from commit e63c283c4e6a71df358bd12e4ba2fe49c1619d82)
+---
+ include/jhash.h | 2 +-
+ src/cache-ct.c  | 2 ++
+ src/cache-exp.c | 1 +
+ src/tcp.c       | 1 +
+ 4 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/include/jhash.h b/include/jhash.h
+index d164e38bde7f6..9793452ebc23d 100644
+--- a/include/jhash.h
++++ b/include/jhash.h
+@@ -106,7 +106,7 @@ static inline u32 jhash2(const u32 *k, u32 length, u32 initval)
+ 	c += length * 4;
+ 
+ 	switch (len) {
+-	case 2 : b += k[1];
++	case 2 : b += k[1]; /* fall through */
+ 	case 1 : a += k[0];
+ 	};
+ 
+diff --git a/src/cache-ct.c b/src/cache-ct.c
+index f86d143c8137d..abcfde4c8a260 100644
+--- a/src/cache-ct.c
++++ b/src/cache-ct.c
+@@ -266,6 +266,7 @@ static int cache_ct_commit(struct cache *c, struct nfct_handle *h, int clientfd)
+ 		STATE_SYNC(commit).stats.ok = c->stats.commit_ok;
+ 		STATE_SYNC(commit).stats.fail = c->stats.commit_fail;
+ 		STATE_SYNC(commit).clientfd = clientfd;
++		/* fall through */
+ 	case COMMIT_STATE_MASTER:
+ 		STATE_SYNC(commit).current =
+ 			hashtable_iterate_limit(c->h, &tmp,
+@@ -280,6 +281,7 @@ static int cache_ct_commit(struct cache *c, struct nfct_handle *h, int clientfd)
+ 		}
+ 		STATE_SYNC(commit).current = 0;
+ 		STATE_SYNC(commit).state = COMMIT_STATE_RELATED;
++		/* fall through */
+ 	case COMMIT_STATE_RELATED:
+ 		STATE_SYNC(commit).current =
+ 			hashtable_iterate_limit(c->h, &tmp,
+diff --git a/src/cache-exp.c b/src/cache-exp.c
+index 9183b2c42d93f..63e344078a7c6 100644
+--- a/src/cache-exp.c
++++ b/src/cache-exp.c
+@@ -236,6 +236,7 @@ cache_exp_commit(struct cache *c, struct nfct_handle *h, int clientfd)
+ 		STATE_SYNC(commit).stats.ok = c->stats.commit_ok;
+ 		STATE_SYNC(commit).stats.fail = c->stats.commit_fail;
+ 		STATE_SYNC(commit).clientfd = clientfd;
++		/* fall through */
+ 	case COMMIT_STATE_MASTER:
+ 		STATE_SYNC(commit).current =
+ 			hashtable_iterate_limit(c->h, &tmp,
+diff --git a/src/tcp.c b/src/tcp.c
+index c8f254483aa35..91fe524542013 100644
+--- a/src/tcp.c
++++ b/src/tcp.c
+@@ -300,6 +300,7 @@ ssize_t tcp_send(struct tcp_sock *m, const void *data, int size)
+ 			/* we got connected :) */
+ 			m->state = TCP_CLIENT_CONNECTED;
+ 		}
++		/* fall through */
+ 	case TCP_CLIENT_CONNECTED:
+ 		ret = sendto(m->fd, data, size, 0,
+ 			     (struct sockaddr *) &m->addr, m->sockaddr_len);
+-- 
+2.21.0
+

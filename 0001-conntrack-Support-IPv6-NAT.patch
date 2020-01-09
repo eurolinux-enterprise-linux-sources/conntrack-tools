@@ -1,5 +1,26 @@
+From c1874130f845e526de76d116639c044cb30fcc9a Mon Sep 17 00:00:00 2001
+From: Neil Wilson <neil@aldur.co.uk>
+Date: Thu, 16 Mar 2017 11:49:03 +0000
+Subject: [PATCH] conntrack: Support IPv6 NAT
+
+Refactor and improve nat support to allow conntrack to manage IPv6
+NAT entries.
+
+Refactor and improve conntrack nat tests to include IPv6 NAT.
+
+Signed-off-by: Neil Wilson <neil@aldur.co.uk>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+(cherry picked from commit 29b390a2122143997a651e6b25d7496e62ead2a1)
+---
+ src/conntrack.c                    | 213 ++++++++++++++++++++---------
+ tests/conntrack/testsuite/00create |   6 +
+ tests/conntrack/testsuite/03nat    |   8 ++
+ tests/conntrack/testsuite/07nat6   |  56 ++++++++
+ 4 files changed, 216 insertions(+), 67 deletions(-)
+ create mode 100644 tests/conntrack/testsuite/07nat6
+
 diff --git a/src/conntrack.c b/src/conntrack.c
-index bd337f4..6e96b58 100644
+index ff030fe54e103..cbf03c7be8834 100644
 --- a/src/conntrack.c
 +++ b/src/conntrack.c
 @@ -43,6 +43,8 @@
@@ -340,7 +361,7 @@ index bd337f4..6e96b58 100644
  		case '(':
  		case ')':
 diff --git a/tests/conntrack/testsuite/00create b/tests/conntrack/testsuite/00create
-index 40e2c19..afe4342 100644
+index 40e2c1952940c..afe4342e9b00d 100644
 --- a/tests/conntrack/testsuite/00create
 +++ b/tests/conntrack/testsuite/00create
 @@ -18,3 +18,9 @@
@@ -354,7 +375,7 @@ index 40e2c19..afe4342 100644
 +# mismatched address family
 +-I -s 2001:DB8::1.1.1.1 -d 2.2.2.2 -p tcp --sport 10 --dport 20 --state LISTEN -u SEEN_REPLY -t 50 ; BAD
 diff --git a/tests/conntrack/testsuite/03nat b/tests/conntrack/testsuite/03nat
-index f94e8ff..014feb8 100644
+index f94e8ffeb2f9f..014feb8e6e3ab 100644
 --- a/tests/conntrack/testsuite/03nat
 +++ b/tests/conntrack/testsuite/03nat
 @@ -36,5 +36,13 @@
@@ -373,7 +394,7 @@ index f94e8ff..014feb8 100644
  -D -s 1.1.1.1 ; OK
 diff --git a/tests/conntrack/testsuite/07nat6 b/tests/conntrack/testsuite/07nat6
 new file mode 100644
-index 0000000..8cecd8e
+index 0000000000000..8cecd8e9bdd88
 --- /dev/null
 +++ b/tests/conntrack/testsuite/07nat6
 @@ -0,0 +1,56 @@
@@ -434,5 +455,5 @@ index 0000000..8cecd8e
 +# create - brackets rejected elsewhere
 +-I -s [2001:DB8::1.1.1.1] -d 2001:DB8::2.2.2.2 --dst-nat 2001:DB8::3.3.3.3 -p tcp --sport 10 --dport 20 --state LISTEN -u SEEN_REPLY -t 50 ; BAD
 -- 
-2.7.4
+2.21.0
 

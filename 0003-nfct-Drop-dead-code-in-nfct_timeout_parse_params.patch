@@ -1,0 +1,47 @@
+From 3a78f5f896726ef8ad08cf8f750f2bc57dd85ab5 Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Tue, 12 Feb 2019 23:44:46 +0100
+Subject: [PATCH] nfct: Drop dead code in nfct_timeout_parse_params()
+
+Due to the first switch() in that function, default case in second one
+is unreachable. Given that both of them contain the same cases but the
+first one merely acts as an invalid command barrier (adding no value to
+the second one), drop the first one to make invalid commands actually
+hit default case in the second switch().
+
+Fixes: dd73ceecdbe87 ("nfct: Update syntax to specify command before subsystem")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+(cherry picked from commit 9b477e07e00bc2d651784d7c82c2123f0bd7386b)
+---
+ src/nfct-extensions/timeout.c | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/src/nfct-extensions/timeout.c b/src/nfct-extensions/timeout.c
+index 30f94642bd3bd..31e91a63de722 100644
+--- a/src/nfct-extensions/timeout.c
++++ b/src/nfct-extensions/timeout.c
+@@ -54,20 +54,6 @@ nfct_timeout_parse_params(struct mnl_socket *nl, int argc, char *argv[], int cmd
+ 		return -1;
+ 	}
+ 
+-	switch (cmd) {
+-	case NFCT_CMD_LIST:
+-	case NFCT_CMD_ADD:
+-	case NFCT_CMD_DELETE:
+-	case NFCT_CMD_GET:
+-	case NFCT_CMD_FLUSH:
+-	case NFCT_CMD_DEFAULT_SET:
+-	case NFCT_CMD_DEFAULT_GET:
+-		break;
+-	default:
+-		nfct_cmd_timeout_usage(argv);
+-		return -1;
+-	}
+-
+ 	switch (cmd) {
+ 	case NFCT_CMD_LIST:
+ 		ret = nfct_cmd_timeout_list(nl, argc, argv);
+-- 
+2.21.0
+
