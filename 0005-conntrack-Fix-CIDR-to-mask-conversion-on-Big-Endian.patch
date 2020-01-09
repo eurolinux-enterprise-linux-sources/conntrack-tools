@@ -1,0 +1,33 @@
+From a34911f038f5591fdf115909eff494adde1606ce Mon Sep 17 00:00:00 2001
+From: Phil Sutter <phil@nwl.cc>
+Date: Mon, 2 Sep 2019 18:39:51 +0200
+Subject: [PATCH] conntrack: Fix CIDR to mask conversion on Big Endian
+
+Code assumed host architecture to be Little Endian. Instead produce a
+proper mask by pushing the set bits into most significant position and
+apply htonl() on the result.
+
+Fixes: 3f6a2e90936bb ("conntrack: add support for CIDR notation")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+(cherry picked from commit f27901afb038b07532b4c31cb77bbc0bd8068253)
+---
+ src/conntrack.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/conntrack.c b/src/conntrack.c
+index cbf03c7be8834..725e85d329c98 100644
+--- a/src/conntrack.c
++++ b/src/conntrack.c
+@@ -2175,7 +2175,7 @@ nfct_build_netmask(uint32_t *dst, int b, int n)
+ 			dst[i] = 0xffffffff;
+ 			b -= 32;
+ 		} else if (b > 0) {
+-			dst[i] = (1 << b) - 1;
++			dst[i] = htonl(~0u << (32 - b));
+ 			b = 0;
+ 		} else {
+ 			dst[i] = 0;
+-- 
+2.22.0
+

@@ -1,6 +1,6 @@
 Name:           conntrack-tools
 Version:        1.4.4
-Release:        5%{?dist}
+Release:        5%{?dist}.2
 Summary:        Manipulate netfilter connection tracking table and run High Availability
 Group:          System Environment/Base
 License:        GPLv2
@@ -24,6 +24,8 @@ Patch1:		0001-conntrack-Support-IPv6-NAT.patch
 Patch2:		0002-conntrackd-helpers-dhcpv6-Fix-potential-array-overru.patch
 Patch3:		0003-nfct-Drop-dead-code-in-nfct_timeout_parse_params.patch
 Patch4:		0004-src-Fix-for-implicit-fallthrough-warnings.patch
+Patch5:		0005-conntrack-Fix-CIDR-to-mask-conversion-on-Big-Endian.patch
+Patch6:		0006-nfct-helper-Fix-NFCTH_ATTR_PROTO_L4NUM-size.patch
 
 %description
 With conntrack-tools you can setup a High Availability cluster and
@@ -85,6 +87,12 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %systemd_postun conntrackd.service 
 
 %changelog
+* Tue Sep 10 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5.2
+- nfct: helper: Fix NFCTH_ATTR_PROTO_L4NUM size
+
+* Fri Sep 06 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5.1
+- conntrack: Fix CIDR to mask conversion on Big Endian
+
 * Wed Mar 27 2019 Phil Sutter <psutter@redhat.com> - 1.4.4-5
 - Add git commit info to IPv6 NAT support patch
 - Backport: conntrackd: helpers: dhcpv6: Fix potential array overrun
