@@ -1,6 +1,6 @@
 Name:           conntrack-tools
-Version:        1.4.3
-Release:        1%{?dist}
+Version:        1.4.4
+Release:        3%{?dist}
 Summary:        Manipulate netfilter connection tracking table and run High Availability
 Group:          System Environment/Base
 License:        GPLv2
@@ -8,16 +8,19 @@ URL:            http://netfilter.org
 Source0:        http://netfilter.org/projects/%{name}/files/%{name}-%{version}.tar.bz2
 Source1:        conntrackd.service
 Source2:        conntrackd.conf
-BuildRequires:  libnfnetlink-devel >= 1.0.1, libnetfilter_conntrack-devel >= 1.0.4
+BuildRequires:  libnfnetlink-devel >= 1.0.1, libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:  libnetfilter_cttimeout-devel >= 1.0.0, libnetfilter_cthelper-devel >= 1.0.0
 BuildRequires:  libmnl-devel >= 1.0.3, libnetfilter_queue-devel >= 1.0.2
 BuildRequires:  pkgconfig bison flex
+Requires:  libnetfilter_conntrack >= 1.0.6
 Provides:       conntrack = 1.0-1
 Obsoletes:      conntrack < 1.0-1
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 BuildRequires: systemd
+
+Patch1: conntrack-tools-1.4.4-conntrack.patch
 
 %description
 With conntrack-tools you can setup a High Availability cluster and
@@ -40,6 +43,7 @@ show an event message (one line) per newly established connection.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 # do not use --enable-cthelper --enable-cttimeout, it causes disabling of these features
@@ -65,6 +69,7 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %{_sbindir}/conntrackd
 %{_sbindir}/nfct
 %{_mandir}/man8/*
+%{_mandir}/man5/*
 %dir %{_libdir}/conntrack-tools
 %{_libdir}/conntrack-tools/*
 
@@ -78,6 +83,15 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/conntrackd/
 %systemd_postun conntrackd.service 
 
 %changelog
+* Mon Apr 03 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-3
+- Resolves: rhbz#1425552 (explicitely Require: libnetfilter_conntrack >= 1.0.6 as it is same .so version)
+
+* Thu Mar 16 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-2
+- Resolves: rhbz#1425552 (conntrack cmd was missing IPv6 support as well)
+
+* Fri Mar 03 2017 Paul Wouters <pwouters@redhat.com> - 1.4.4-1
+- Resolves: rhbz#1425552 conntrack does not support Ipv6 NAT
+
 * Fri Aug 12 2016 Paul Wouters <pwouters@redhat.com> - 1.4.3-1
 - Resolves: rhbz#1351701 conntrackd -d throws "ERROR: Helper support is disabled"
 
